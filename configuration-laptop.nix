@@ -137,6 +137,7 @@
       isNormalUser    = true;
       uid             = 1000;
       initialPassword = "1234";
+      createHome = true;
   };
 
   users.defaultUserShell  = "${pkgs.fish}/bin/fish";

@@ -12,7 +12,7 @@
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable  = true;
   boot.loader.grub.version = 2;
-  boot.loader.grub.device  = "/dev/sda";
+  boot.loader.grub.device  = "/dev/vda";
 
   networking.firewall.allowedTCPPorts = [22 3000 3030 3333 5000 8000 8080 8888 9000 ];
   networking.firewall.allowPing       = true;

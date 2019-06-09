@@ -1,27 +1,42 @@
-import qualified Data.Map                     as M
+import           Control.Concurrent
+import qualified Data.Map                         as M
 import           System.Exit
 import           System.IO
 import           XMonad
 import           XMonad.Actions.SpawnOn
 import           XMonad.Actions.UpdatePointer
 import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops    (fullscreenEventHook)
+import           XMonad.Hooks.EwmhDesktops        (ewmh, fullscreenEventHook)
+import           XMonad.Hooks.EwmhDesktops
 import           XMonad.Hooks.ManageDocks
-import           XMonad.Layout.Fullscreen     hiding (fullscreenEventHook)
+import           XMonad.Layout.Fullscreen         hiding (fullscreenEventHook)
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Tabbed
 import           XMonad.Prompt
+import           XMonad.Prompt.Pass
+import           XMonad.Prompt.RunOrRaise         (runOrRaisePrompt)
 import           XMonad.Prompt.Shell
-import qualified XMonad.StackSet              as W
-import           XMonad.Util.Run              (spawnPipe)
+import qualified XMonad.StackSet                  as W
+import           XMonad.Util.EZConfig
+import           XMonad.Util.Run                  (spawnPipe)
 import           XMonad.Util.SpawnOnce
+
+import qualified XMonad.Layout.IndependentScreens as LIS
+
+enableLaptopMonitor, enableExternalMonitor, disableLaptopMonitor, disableExternalMonitor :: ( MonadIO m ) => m ()
+
+enableLaptopMonitor    = spawn "xrandr --output eDP-1  --auto"
+disableLaptopMonitor   = spawn "xrandr --output eDP-1  --off"
+enableExternalMonitor  = spawn "xrandr --output HDMI-2 --auto"
+disableExternalMonitor = spawn "xrandr --output HDMI-2 --off"
+
 ------------------------------------------------------------------------
 -- Terminal
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
 myTerminal :: String
-myTerminal = "termite" -- -fn xft:anonymouspro:size=10.5:antialias=false -letsp 1.2"
+myTerminal = "alacritty" -- -fn xft:anonymouspro:size=10.5:antialias=false -letsp 1.2"
 
 ------------------------------------------------------------------------
 -- Workspaces
@@ -57,7 +72,7 @@ myManageHook = composeAll [ ]
 -- The available layouts. Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-defaultLayouts =  avoidStruts $ ( smartBorders $  Tall 1 (3/100) (1/2) )
+defaultLayouts = avoidStruts $ ( smartBorders $  Tall 1 (3/100) (1/2) )
                                ||| ( noBorders  Full )
 
 ------------------------------------------------------------------------
@@ -102,27 +117,36 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((0,   0x1008ff81)          , spawn "echo 'works' | rofi -dmenu'")
 
     , ( (modMask, xK_r)
-      , shellPrompt myPromptConfig )
+      , runOrRaisePrompt myPromptConfig )
 
     -- Multimedia keys
     --
-    -- XF86AudioLowerVolume
-    , ((0            , 0x1008ff11), spawn "amixer -q set Master 5%-")
-    -- XF86AudioRaiseVolume
-    , ((0            , 0x1008ff13), spawn "amixer -q set Master 5%+")
-    -- XF86AudioMute
-    , ((0            , 0x1008ff12), spawn "amixer -q set PCM toggle")
-    -- XF86AudioNext
-    , ((0            , 0x1008ff17), spawn "mpc next")
-    -- XF86AudioPrev
-    , ((0            , 0x1008ff16), spawn "mpc prev")
-    -- XF86AudioPlay
-    , ((0            , 0x1008ff14), spawn "mpc play")
-    -- XF86AudioStop
-    , ((0            , 0x1008ff15), spawn "mpc stop")
+     -- XF86AudioLowerVolume
+     , ((0            , 0x1008ff11), spawn "amixer -q set Master 5%-")
+     -- XF86AudioRaiseVolume
+     , ((0            , 0x1008ff13), spawn "amixer -q set Master 5%+")
+     -- XF86AudioMute
+     , ((0            , 0x1008ff12), spawn "amixer -q set Master 0")
+     -- XF86AudioNext
+     , ((0            , 0x1008ff17), spawn "playerctl next")
+     -- XF86AudioPrev
+     , ((0            , 0x1008ff16), spawn "playerctl previous")
+     -- XF86AudioPlay
+     , ((0            , 0x1008ff14), spawn "playerctl play-pause")
+     -- XF86AudioStop
+     , ((0            , 0x1008ff15), spawn "playerctl stop")
+
+    , ((modMask,               xK_p), passPrompt myPromptConfig )
+    , ((modMask .|. shiftMask, xK_p), passGeneratePrompt myPromptConfig )
 
     -- Eject CD tray.
     , ((0, 0x1008FF2C), spawn "eject -T")
+    , ((modMask, xK_e), enableExternalMonitor)
+    , ((modMask .|. shiftMask, xK_e), disableExternalMonitor)
+    , ((modMask, xK_i), enableLaptopMonitor)
+    , ((modMask .|. shiftMask, xK_i), disableLaptopMonitor)
+
+    , ((modMask, xK_f     ), sendMessage ToggleStruts)
 
     -- Lock and suspend/hibernate
     , ((modMask .|. shiftMask, xK_l), spawn "dm-tool lock")
@@ -241,14 +265,14 @@ myStartupHook = mapM_ spawnOnce
 
 main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
-    xmonad $ defaults
+    xmonad $ docks $ ewmh defaults
         { manageHook      = manageDocks <+> manageHook defaultConfig
         , layoutHook      = defaultLayouts
         , handleEventHook = fullscreenEventHook
         , logHook         = dynamicLogWithPP xmobarPP
             { ppOutput    = hPutStrLn xmproc
             , ppCurrent   = xmobarColor "#f7f9fb" ""
-            , ppHidden    = xmobarColor "#657b83" "#0b1c2c"
+            , ppHidden    = xmobarColor "#657b83" "" --"#657b83"
             , ppWsSep     = xmobarColor "#002b36" "" " "
             , ppSep       = xmobarColor "#002b36" "" "    "
             , ppUrgent    = xmobarColor "#bf8b56" ""

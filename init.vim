@@ -25,8 +25,8 @@ set softtabstop=2
 set termguicolors
 set tw=80
 set wildignore+=*\\tmp\\*,*.swp,*.swo,*.zip,.git,.cabal-sandbox,result
-set wildmode=longest,list,full
 set wildmenu
+set wildmode=longest,list,full
 set wrap linebreak nolist
 
 set t_Co=256
@@ -35,55 +35,70 @@ set shell=/bin/sh
 " vim-plug
 call plug#begin('~/.vim/plugged')
 
-" Haskell stuff
-Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
-Plug 'neovimhaskell/haskell-vim'
-Plug 'alx741/vim-hindent' " Optional
-Plug 'mpickering/hlint-refactor-vim'
-Plug 'nbouscal/vim-stylish-haskell'
-
 " Code editing tools
 Plug 'junegunn/vim-easy-align'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-commentary'
-
-" Interface
-Plug 'mhinz/vim-startify'
-Plug 'itchyny/lightline.vim'
-Plug 'kien/ctrlp.vim'
-Plug 'mhinz/vim-signify'
-
-" Plug 'easymotion/vim-easymotion'
-Plug 'neovimhaskell/haskell-vim'
-Plug 'terryma/vim-expand-region'
-Plug 'terryma/vim-multiple-cursors'
-Plug 'sbdchd/neoformat'
-
-" Other languages tools
-Plug 'kchmck/vim-coffee-script'
-Plug 'pangloss/vim-javascript'
-Plug 'LnL7/vim-nix'
-
-" Themes
-Plug 'NLKNguyen/papercolor-theme'
-Plug 'whatyouhide/vim-gotham'
-Plug 'mlopes/vim-farin'
-
 Plug 'Shougo/deoplete.nvim'
 Plug 'Shougo/neopairs.vim'
 Plug 'Shougo/vimproc.vim'
+Plug 'terryma/vim-expand-region'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+
+" Interface
+Plug 'itchyny/lightline.vim'
+Plug 'kien/ctrlp.vim'
+Plug 'mhinz/vim-signify'
+Plug 'mhinz/vim-startify'
+
+" Haskell stuff
+Plug 'alx741/vim-hindent' " Optional
+Plug 'mpickering/hlint-refactor-vim'
+Plug 'nbouscal/vim-stylish-haskell'
+Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
+Plug 'neovimhaskell/haskell-vim'
+
+" Other languages tools
+Plug 'kchmck/vim-coffee-script'
+Plug 'LnL7/vim-nix'
+Plug 'pangloss/vim-javascript'
+
+" Themes
+Plug 'mlopes/vim-farin'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'whatyouhide/vim-gotham'
+Plug 'rakr/vim-one'
 
 call plug#end()
 
-colorscheme gotham256
+"Credit joshdick
+"Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
+"If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
+"(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
+if (empty($TMUX))
+  if (has("nvim"))
+  "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
+  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  endif
+  "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
+  "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
+  " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
+  if (has("termguicolors"))
+    set termguicolors
+  endif
+endif
+
+
+set background=dark " for the dark version
+" set background=light " for the light version
+colorscheme one
+
+
 
 " Remove trail spaces on save.
 autocmd BufWritePre * %s/\s\+$//e
 
-" Use deoplete.
-" inoremap <silent><expr> <Tab> pumvisible() ? "\<C-n>" : deoplete#mappings#manual_complete()
-
-let g:lightline = { 'colorscheme': 'gotham256', 'active': { 'left': [ [ 'mode', 'paste' ], [ 'cocstatus', 'readonly', 'filename', 'modified' ] ] }, 'component_function': { 'cocstatus': 'coc#status' } }
+let g:lightline = { 'colorscheme': 'one', 'active': { 'left': [ [ 'mode', 'paste' ], [ 'cocstatus', 'readonly', 'filename', 'modified' ] ] }, 'component_function': { 'cocstatus': 'coc#status' } }
 
 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
@@ -115,16 +130,12 @@ hi MatchParen cterm=none ctermbg=darkblue ctermfg=white
 
 
 
-
-" if hidden is not set, TextEdit might fail.
 set hidden
-
-" Some servers have issues with backup files, see #649
 set nobackup
 set nowritebackup
 
 " Better display for messages
-set cmdheight=10
+set cmdheight=2
 
 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300

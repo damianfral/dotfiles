@@ -5,6 +5,7 @@
       atool
       cloc
       curl
+      direnv
       git-hub
       gnumake
       haskellPackages.wai-app-static
@@ -25,18 +26,18 @@
       kubernetes
     ];
 
+  programs.home-manager.enable = true;
+
   programs.alacritty.enable   = true;
   programs.alacritty.settings = {
     env.TERM          = "xterm-256color";
     window.dimensions.columns = 80;
     window.dimensions.lines   = 24;
-
-    dpi = { x = 96; y     = 96; };
+    dpi       = { x = 96; y = 96; };
     font.size = 10;
     tabspaces = 2;
-    draw_bold_text_witj_bright_colors = true;
     # Colors (Gotham)
-    colors   = {
+    colors    = {
       # Default colors
       primary = {
         background = "0x0a0f14";
@@ -70,16 +71,23 @@
 
     mouse.hide_when_typing = true;
     live_config_reload     = true;
+    draw_bold_text_with_bright_colors = true;
   };
 
   programs.fish.enable       = true;
   programs.fish.shellAliases = {
     today = "date '+%Y/%m/%d'";
   };
-    
-  programs.starship.enable   = true;
+  programs.direnv.enableFishIntegration = true;
 
-  programs.broot.enable = true;
+
+  programs.broot.enable      = true;
+  programs.jq.enable         = true;
+  programs.lesspipe.enable   = true;
+  programs.lsd.enableAliases = true;
+  programs.lsd.enable        = true;
+  programs.skim.enable       = true;
+  programs.starship.enable   = true;
 
   programs.firefox.enable    = true;
   programs.mpv.enable        = true;
@@ -90,7 +98,6 @@
   programs.git.userEmail     = "huevofritopamojarpan@gmail.com";
 
   programs.gpg.enable = true;
-  programs.home-manager.enable = true;
 
   programs.neovim.enable       = true;
   programs.neovim.withPython   = true;
@@ -121,7 +128,7 @@
   services.gpg-agent.enableScDaemon = true;
   services.gpg-agent.enableSshSupport = true;
   services.gpg-agent.defaultCacheTtl = 3600;
-  
+
 
   # RedShift
   services.redshift.enable            = true;
@@ -132,9 +139,11 @@
   services.redshift.brightness.night  = "0.8";
   services.redshift.temperature.night = 5500;
 
+
   services.keybase.enable = true;
   services.kbfs.enable = true;
-
+  services.mpdris2.multimediaKeys = true;
+  services.udiskie.enable = true;
   services.xsuspender.enable          = true;
   services.dunst.enable = true;
   services.dunst.settings = {
@@ -152,7 +161,7 @@
       horizontal_padding = 6;
       separator_color    = "frame";
 
-    }; 
+    };
 
     shortcuts = {
       close = "ctrl+space";
@@ -198,6 +207,7 @@
   };
 
   xsession.enable = true;
+  xsession.numlock.enable = true;
   xsession.windowManager.xmonad.enable                 = true;
   xsession.windowManager.xmonad.enableContribAndExtras = true;
   xsession.windowManager.xmonad.config = /home/damianfral/devel/dotfiles/xmonad.hs;
